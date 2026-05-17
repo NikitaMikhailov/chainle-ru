@@ -75,7 +75,7 @@ export function validatePath(path, grid, target) {
 }
 
 // ── Puzzle date helpers ──────────────────────────────────────────────────────
-export const PUZZLE_START_DATE = '2026-01-01';
+export const PUZZLE_START_DATE = '2026-05-17';
 
 export function puzzleIndex(dateStr) {
   const [sy, sm, sd] = PUZZLE_START_DATE.split('-').map(Number);

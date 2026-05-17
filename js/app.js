@@ -294,10 +294,10 @@ function renderActionArea() {
       <div class="result-sub">${subs[state.stars]}</div>
       <div class="result-meta">Ваш путь: ${state.submittedPath.length} кл. · Оптимум: ${state.optimal} кл.</div>
       <div class="result-actions">
-        <button class="btn-primary" id="banner-stats-btn">Статистика</button>
+        <button class="btn-secondary" id="banner-retry-btn">Попробовать снова</button>
         <button class="btn-primary" id="banner-share-btn">Поделиться</button>
       </div>`;
-    document.getElementById('banner-stats-btn').onclick = () => { renderStats(); openModal('stats'); };
+    document.getElementById('banner-retry-btn').onclick = retryPuzzle;
     document.getElementById('banner-share-btn').onclick = shareResult;
     panel.classList.remove('hidden');
 
@@ -310,7 +310,9 @@ function renderActionArea() {
 }
 
 // ── Touch & mouse input ───────────────────────────────────────────────────────
-let pointerDown = false;
+let pointerDown  = false;
+let didDrag      = false;
+let dragStartIdx = null;
 
 function getCellFromPoint(clientX, clientY) {
   const container = document.getElementById('grid-container');
@@ -327,20 +329,29 @@ function getCellFromPoint(clientX, clientY) {
 function bindGridEvents() {
   const container = document.getElementById('grid-container');
 
+  // Touch: respond immediately (extend/start on touchstart, continue on touchmove)
   container.addEventListener('touchstart', e => {
     e.preventDefault();
     if (state.status !== 'playing') return;
     const idx = getCellFromPoint(e.touches[0].clientX, e.touches[0].clientY);
     if (idx === null) return;
-    startPath(idx);
+    didDrag = false;
+    dragStartIdx = idx;
     pointerDown = true;
+    const last = state.path[state.path.length - 1];
+    if (idx === last) return; // resume from last cell — no reset
+    if (state.path.length > 0 && isAdjacent(last, idx)) {
+      extendPath(idx);
+    } else {
+      startPath(idx);
+    }
   }, { passive: false });
 
   container.addEventListener('touchmove', e => {
     e.preventDefault();
     if (!pointerDown || state.status !== 'playing') return;
     const idx = getCellFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-    if (idx !== null) extendPath(idx);
+    if (idx !== null) { didDrag = true; extendPath(idx); }
   }, { passive: false });
 
   container.addEventListener('touchend', e => {
@@ -348,29 +359,40 @@ function bindGridEvents() {
     pointerDown = false;
   }, { passive: false });
 
+  // Mouse: mousedown only sets up drag — path is built via mousemove (drag) or click (tap)
   container.addEventListener('mousedown', e => {
     if (state.status !== 'playing') return;
     const idx = getCellFromPoint(e.clientX, e.clientY);
     if (idx === null) return;
-    startPath(idx);
+    didDrag = false;
+    dragStartIdx = idx;
     pointerDown = true;
   });
 
   container.addEventListener('mousemove', e => {
     if (!pointerDown || state.status !== 'playing') return;
     const idx = getCellFromPoint(e.clientX, e.clientY);
-    if (idx !== null) extendPath(idx);
+    if (idx === null) return;
+    if (!didDrag) {
+      // First cell of drag — initialize path from dragStartIdx
+      didDrag = true;
+      const last = state.path[state.path.length - 1];
+      if (dragStartIdx !== last) startPath(dragStartIdx);
+    }
+    extendPath(idx);
   });
 
   document.addEventListener('mouseup', () => { pointerDown = false; });
 
-  // Tap on individual cells (alternative input)
+  // Click (tap without drag): extend path or start new one
   container.addEventListener('click', e => {
+    if (didDrag) { didDrag = false; return; }
     if (state.status !== 'playing') return;
     const idx = getCellFromPoint(e.clientX, e.clientY);
     if (idx === null) return;
-    // If no path or not adjacent → start new path; otherwise extend/backtrack
-    if (!state.path.length || !isAdjacent(state.path[state.path.length - 1], idx)) {
+    const last = state.path[state.path.length - 1];
+    if (idx === last) return; // tap on last cell — no-op, allows resuming drag
+    if (!state.path.length || !isAdjacent(last, idx)) {
       startPath(idx);
     } else {
       extendPath(idx);
@@ -378,33 +400,58 @@ function bindGridEvents() {
   });
 }
 
+// ── Retry ─────────────────────────────────────────────────────────────────────
+function retryPuzzle() {
+  state.status = 'playing';
+  state.path   = [];
+  state.sum    = 0;
+  state.stars  = 0;
+  state.submittedPath = null;
+  saveState();
+  render();
+}
+
 // ── Sharing ───────────────────────────────────────────────────────────────────
 function shareResult() {
   if (!state.submittedPath) return;
-  const pathSet = new Set(state.submittedPath);
-  const grid5 = Array.from({ length: 5 }, (_, r) =>
-    Array.from({ length: 5 }, (_, c) => pathSet.has(r * 5 + c) ? '🟩' : '⬜').join('')
-  ).join('\n');
   const stars = '⭐'.repeat(state.stars);
   const lines = [
     `Chainle #${state.puzzleIndex + 1} 🔗`,
     `Цель: ${state.target} | ${stars}`,
     `Путь: ${state.submittedPath.length} клеток`,
     '',
-    grid5,
-    '',
     'chainle.ru',
   ];
-  navigator.clipboard.writeText(lines.join('\n'))
-    .then(() => toast('Скопировано!'))
-    .catch(() => toast('Не удалось скопировать'));
+  const text = lines.join('\n');
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => toast('Скопировано!'))
+      .catch(() => copyFallback(text));
+  } else {
+    copyFallback(text);
+  }
+}
+
+function copyFallback(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    toast('Скопировано!');
+  } catch {
+    toast('Не удалось скопировать');
+  }
+  ta.remove();
 }
 
 // ── Stats modal ───────────────────────────────────────────────────────────────
 function renderStats() {
   const s = loadStats();
   document.getElementById('stat-played').textContent    = s.played;
-  document.getElementById('stat-solve-pct').textContent = s.played ? Math.round(s.solved / s.played * 100) : 0;
   document.getElementById('stat-streak').textContent    = s.streak;
   document.getElementById('stat-max-streak').textContent = s.maxStreak;
 
