@@ -1,0 +1,12 @@
+{
+  "name": "chainle-ru",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^2.0.0"
+  }
+}
