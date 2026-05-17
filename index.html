@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chainle — ежедневная математическая головоломка</title>
+  <link rel="canonical" href="https://chainle.ru/">
+
+  <meta name="description" content="Chainle — ежедневная математическая головоломка. Проведите цепочку через клетки сетки 5×5 так, чтобы сумма чисел равнялась цели. Чем короче путь — тем лучше!">
+  <meta name="robots" content="index, follow">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://chainle.ru/">
+  <meta property="og:title" content="Chainle — нарисуй путь и набери сумму">
+  <meta property="og:description" content="Ежедневная математическая головоломка. Проведи цепочку по сетке 5×5 — сумма должна точно совпасть с целевым числом.">
+  <meta property="og:image" content="https://chainle.ru/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:site_name" content="Chainle">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chainle — нарисуй путь и набери сумму">
+  <meta name="twitter:description" content="Ежедневная математическая головоломка. Проведи цепочку по сетке 5×5.">
+  <meta name="twitter:image" content="https://chainle.ru/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Chainle",
+    "url": "https://chainle.ru/",
+    "description": "Ежедневная математическая головоломка. Проведи цепочку по сетке 5×5 так, чтобы сумма чисел равнялась цели.",
+    "applicationCategory": "GameApplication",
+    "operatingSystem": "Any",
+    "inLanguage": "ru",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "RUB" },
+    "author": { "@type": "Person", "name": "Никита Михайлов" }
+  }
+  </script>
+
+  <link rel="stylesheet" href="style.css?v=__BUILD_HASH__">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%236aaa64'/><text x='16' y='23' text-anchor='middle' font-family='system-ui,sans-serif' font-size='16' font-weight='700' fill='white'>CH</text></svg>">
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <button class="icon-btn" id="btn-how-to-play" title="Как играть">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <h1>Chainle<span class="puzzle-num" id="puzzle-num"></span></h1>
+      <div class="header-right">
+        <button class="icon-btn" id="btn-stats" title="Статистика">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-settings" title="Настройки">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="header-border"></div>
+  </header>
+
+  <div id="toast-container"></div>
+
+  <main>
+    <div id="target-display">
+      Цель
+      <span id="target-num">—</span>
+    </div>
+
+    <div id="grid-container">
+      <div id="game-grid"></div>
+      <svg id="path-svg" aria-hidden="true">
+        <polyline id="path-line" points=""/>
+      </svg>
+    </div>
+
+    <div id="info-bar">
+      <div class="info-col">
+        <div class="info-label">Сумма</div>
+        <div class="info-val" id="current-sum">0</div>
+      </div>
+      <div class="info-divider"></div>
+      <div class="info-col">
+        <div class="info-label">Цель</div>
+        <div class="info-val" id="target-sum">—</div>
+      </div>
+      <div class="info-divider"></div>
+      <div class="info-col">
+        <div class="info-label">Клеток</div>
+        <div class="info-val" id="path-len">0</div>
+      </div>
+    </div>
+
+    <div id="action-bar">
+      <button class="btn-secondary" id="btn-reset">Сбросить</button>
+      <button class="btn-primary" id="btn-confirm" disabled>Подтвердить</button>
+    </div>
+
+    <div id="result-panel" class="hidden"></div>
+  </main>
+
+  <!-- How to Play Modal -->
+  <div class="modal-overlay" id="overlay-how-to-play">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h2>Как играть</h2>
+        <button class="modal-close" data-close="how-to-play">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>Chainle — ежедневная математическая головоломка. Проведи непрерывную цепочку по сетке 5×5 так, чтобы <strong>сумма чисел точно равнялась цели</strong>.</p>
+
+        <div class="htp-grid-demo">
+          <div class="htp-cell start">6</div><div class="htp-cell on">4</div><div class="htp-cell on">3</div><div class="htp-cell">4</div><div class="htp-cell">2</div>
+          <div class="htp-cell">9</div><div class="htp-cell on">4</div><div class="htp-cell on">4</div><div class="htp-cell">4</div><div class="htp-cell">6</div>
+          <div class="htp-cell">3</div><div class="htp-cell">1</div><div class="htp-cell on">5</div><div class="htp-cell">3</div><div class="htp-cell">3</div>
+          <div class="htp-cell">9</div><div class="htp-cell">5</div><div class="htp-cell on">3</div><div class="htp-cell">2</div><div class="htp-cell">1</div>
+          <div class="htp-cell">3</div><div class="htp-cell">1</div><div class="htp-cell on">6</div><div class="htp-cell">4</div><div class="htp-cell">6</div>
+        </div>
+        <p style="text-align:center; font-size:0.82rem; opacity:0.7">6+4+3+4+4+5+3+6 = 35 (пример)</p>
+
+        <p><strong>Правила цепочки:</strong></p>
+        <ul style="padding-left:18px; display:flex; flex-direction:column; gap:4px;">
+          <li>Проводи пальцем (или тапай) по смежным клеткам — только вверх, вниз, влево, вправо.</li>
+          <li>Нельзя проходить через одну клетку дважды.</li>
+          <li>Чтобы откатить шаг — верни палец на предыдущую клетку.</li>
+          <li>Когда сумма совпадёт с целью — нажми <strong>«Подтвердить»</strong>.</li>
+        </ul>
+
+        <p><strong>Система звёзд:</strong></p>
+        <ul style="padding-left:18px; display:flex; flex-direction:column; gap:4px;">
+          <li>⭐⭐⭐ — нашёл кратчайший путь</li>
+          <li>⭐⭐ — на одну клетку длиннее идеала</li>
+          <li>⭐ — решено, но можно лучше</li>
+        </ul>
+
+        <div class="htp-warning">💡 Подсказка: есть много путей, дающих нужную сумму. Главный вызов — найти <em>кратчайший</em>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Modal -->
+  <div class="modal-overlay" id="overlay-stats">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h2>Статистика</h2>
+        <button class="modal-close" data-close="stats">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="stats-grid">
+          <div class="stat-block"><div class="stat-val" id="stat-played">0</div><div class="stat-label">Сыграно</div></div>
+          <div class="stat-block"><div class="stat-val" id="stat-solve-pct">0</div><div class="stat-label">Решено %</div></div>
+          <div class="stat-block"><div class="stat-val" id="stat-streak">0</div><div class="stat-label">Серия</div></div>
+          <div class="stat-block"><div class="stat-val" id="stat-max-streak">0</div><div class="stat-label">Макс. серия</div></div>
+        </div>
+        <h3>Распределение оценок</h3>
+        <div id="result-dist">
+          <div class="dist-row"><span class="dist-label">⭐⭐⭐</span><div class="dist-bar-wrap"><div class="dist-bar bar-three" id="bar-three"><span>0</span></div></div></div>
+          <div class="dist-row"><span class="dist-label">⭐⭐</span><div class="dist-bar-wrap"><div class="dist-bar bar-two"   id="bar-two"><span>0</span></div></div></div>
+          <div class="dist-row"><span class="dist-label">⭐</span><div class="dist-bar-wrap"><div class="dist-bar bar-one"   id="bar-one"><span>0</span></div></div></div>
+        </div>
+        <div id="stats-footer" class="hidden">
+          <div>
+            <div class="next-label">Следующая игра</div>
+            <div id="countdown">—</div>
+          </div>
+          <button id="btn-share" class="btn-primary">Поделиться</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="overlay-settings">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h2>Настройки</h2>
+        <button class="modal-close" data-close="settings">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-row">
+          <div>
+            <div class="setting-title">Тёмная тема</div>
+            <div class="setting-desc">Переключить оформление</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="toggle-dark-mode">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-divider"></div>
+        <div class="setting-link-row">
+          <span class="setting-title">Связь с автором</span>
+          <div class="setting-links">
+            <a href="mailto:mikhailov_nikita1997@icloud.com" class="setting-link">Email</a>
+            <a href="https://t.me/Nikita_Bear" target="_blank" rel="noopener" class="setting-link">Telegram</a>
+          </div>
+        </div>
+        <div class="setting-link-row">
+          <span class="setting-title">Политика конфиденциальности</span>
+          <button class="setting-link" id="btn-privacy">Открыть</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy Policy Modal -->
+  <div class="modal-overlay" id="overlay-privacy">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h2>Конфиденциальность</h2>
+        <button class="modal-close" data-close="privacy">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>Игровое состояние и статистика хранятся исключительно в <strong>localStorage</strong> вашего браузера — на устройстве, без отправки на сервер.</p>
+        <p>По любым вопросам пишите:<br>
+          <a href="mailto:mikhailov_nikita1997@icloud.com">mikhailov_nikita1997@icloud.com</a><br>
+          <a href="https://t.me/Nikita_Bear" target="_blank" rel="noopener">@Nikita_Bear</a> в Telegram
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js?v=__BUILD_HASH__" type="module"></script>
+</body>
+</html>
