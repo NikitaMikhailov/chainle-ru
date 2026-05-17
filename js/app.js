@@ -311,6 +311,7 @@ function renderActionArea() {
 
 // ── Touch & mouse input ───────────────────────────────────────────────────────
 let pointerDown = false;
+let didDrag = false;
 
 function getCellFromPoint(clientX, clientY) {
   const container = document.getElementById('grid-container');
@@ -332,6 +333,7 @@ function bindGridEvents() {
     if (state.status !== 'playing') return;
     const idx = getCellFromPoint(e.touches[0].clientX, e.touches[0].clientY);
     if (idx === null) return;
+    didDrag = false;
     startPath(idx);
     pointerDown = true;
   }, { passive: false });
@@ -340,7 +342,7 @@ function bindGridEvents() {
     e.preventDefault();
     if (!pointerDown || state.status !== 'playing') return;
     const idx = getCellFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-    if (idx !== null) extendPath(idx);
+    if (idx !== null) { didDrag = true; extendPath(idx); }
   }, { passive: false });
 
   container.addEventListener('touchend', e => {
@@ -352,6 +354,7 @@ function bindGridEvents() {
     if (state.status !== 'playing') return;
     const idx = getCellFromPoint(e.clientX, e.clientY);
     if (idx === null) return;
+    didDrag = false;
     startPath(idx);
     pointerDown = true;
   });
@@ -359,17 +362,17 @@ function bindGridEvents() {
   container.addEventListener('mousemove', e => {
     if (!pointerDown || state.status !== 'playing') return;
     const idx = getCellFromPoint(e.clientX, e.clientY);
-    if (idx !== null) extendPath(idx);
+    if (idx !== null) { didDrag = true; extendPath(idx); }
   });
 
   document.addEventListener('mouseup', () => { pointerDown = false; });
 
-  // Tap on individual cells (alternative input)
+  // Tap on individual cells — suppressed after drag to prevent path reset
   container.addEventListener('click', e => {
+    if (didDrag) { didDrag = false; return; }
     if (state.status !== 'playing') return;
     const idx = getCellFromPoint(e.clientX, e.clientY);
     if (idx === null) return;
-    // If no path or not adjacent → start new path; otherwise extend/backtrack
     if (!state.path.length || !isAdjacent(state.path[state.path.length - 1], idx)) {
       startPath(idx);
     } else {
