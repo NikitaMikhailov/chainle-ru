@@ -362,7 +362,8 @@ main {
   gap: 8px;
   justify-content: center;
 }
-.result-actions .btn-primary {
+.result-actions .btn-primary,
+.result-actions .btn-secondary {
   flex: none;
   padding: 10px 20px;
 }
