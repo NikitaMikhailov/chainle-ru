@@ -294,10 +294,10 @@ function renderActionArea() {
       <div class="result-sub">${subs[state.stars]}</div>
       <div class="result-meta">Ваш путь: ${state.submittedPath.length} кл. · Оптимум: ${state.optimal} кл.</div>
       <div class="result-actions">
-        <button class="btn-primary" id="banner-stats-btn">Статистика</button>
+        <button class="btn-secondary" id="banner-retry-btn">Попробовать снова</button>
         <button class="btn-primary" id="banner-share-btn">Поделиться</button>
       </div>`;
-    document.getElementById('banner-stats-btn').onclick = () => { renderStats(); openModal('stats'); };
+    document.getElementById('banner-retry-btn').onclick = retryPuzzle;
     document.getElementById('banner-share-btn').onclick = shareResult;
     panel.classList.remove('hidden');
 
@@ -400,6 +400,17 @@ function bindGridEvents() {
   });
 }
 
+// ── Retry ─────────────────────────────────────────────────────────────────────
+function retryPuzzle() {
+  state.status = 'playing';
+  state.path   = [];
+  state.sum    = 0;
+  state.stars  = 0;
+  state.submittedPath = null;
+  saveState();
+  render();
+}
+
 // ── Sharing ───────────────────────────────────────────────────────────────────
 function shareResult() {
   if (!state.submittedPath) return;
@@ -417,9 +428,30 @@ function shareResult() {
     '',
     'chainle.ru',
   ];
-  navigator.clipboard.writeText(lines.join('\n'))
-    .then(() => toast('Скопировано!'))
-    .catch(() => toast('Не удалось скопировать'));
+  const text = lines.join('\n');
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => toast('Скопировано!'))
+      .catch(() => copyFallback(text));
+  } else {
+    copyFallback(text);
+  }
+}
+
+function copyFallback(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    toast('Скопировано!');
+  } catch {
+    toast('Не удалось скопировать');
+  }
+  ta.remove();
 }
 
 // ── Stats modal ───────────────────────────────────────────────────────────────
