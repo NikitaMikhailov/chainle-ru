@@ -310,8 +310,9 @@ function renderActionArea() {
 }
 
 // ── Touch & mouse input ───────────────────────────────────────────────────────
-let pointerDown = false;
-let didDrag = false;
+let pointerDown  = false;
+let didDrag      = false;
+let dragStartIdx = null;
 
 function getCellFromPoint(clientX, clientY) {
   const container = document.getElementById('grid-container');
@@ -328,14 +329,22 @@ function getCellFromPoint(clientX, clientY) {
 function bindGridEvents() {
   const container = document.getElementById('grid-container');
 
+  // Touch: respond immediately (extend/start on touchstart, continue on touchmove)
   container.addEventListener('touchstart', e => {
     e.preventDefault();
     if (state.status !== 'playing') return;
     const idx = getCellFromPoint(e.touches[0].clientX, e.touches[0].clientY);
     if (idx === null) return;
     didDrag = false;
-    startPath(idx);
+    dragStartIdx = idx;
     pointerDown = true;
+    const last = state.path[state.path.length - 1];
+    if (idx === last) return; // resume from last cell — no reset
+    if (state.path.length > 0 && isAdjacent(last, idx)) {
+      extendPath(idx);
+    } else {
+      startPath(idx);
+    }
   }, { passive: false });
 
   container.addEventListener('touchmove', e => {
@@ -350,31 +359,39 @@ function bindGridEvents() {
     pointerDown = false;
   }, { passive: false });
 
+  // Mouse: mousedown only sets up drag — path is built via mousemove (drag) or click (tap)
   container.addEventListener('mousedown', e => {
     if (state.status !== 'playing') return;
     const idx = getCellFromPoint(e.clientX, e.clientY);
     if (idx === null) return;
     didDrag = false;
-    startPath(idx);
+    dragStartIdx = idx;
     pointerDown = true;
   });
 
   container.addEventListener('mousemove', e => {
     if (!pointerDown || state.status !== 'playing') return;
     const idx = getCellFromPoint(e.clientX, e.clientY);
-    if (idx !== null) { didDrag = true; extendPath(idx); }
+    if (idx === null) return;
+    if (!didDrag) {
+      // First cell of drag — initialize path from dragStartIdx
+      didDrag = true;
+      const last = state.path[state.path.length - 1];
+      if (dragStartIdx !== last) startPath(dragStartIdx);
+    }
+    extendPath(idx);
   });
 
   document.addEventListener('mouseup', () => { pointerDown = false; });
 
-  // Tap on individual cells — suppressed after drag to prevent path reset
+  // Click (tap without drag): extend path or start new one
   container.addEventListener('click', e => {
     if (didDrag) { didDrag = false; return; }
     if (state.status !== 'playing') return;
     const idx = getCellFromPoint(e.clientX, e.clientY);
     if (idx === null) return;
     const last = state.path[state.path.length - 1];
-    if (idx === last) return; // tap on current last cell — no-op, allows resuming drag
+    if (idx === last) return; // tap on last cell — no-op, allows resuming drag
     if (!state.path.length || !isAdjacent(last, idx)) {
       startPath(idx);
     } else {
