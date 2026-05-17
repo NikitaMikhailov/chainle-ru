@@ -166,16 +166,16 @@ describe('solve', () => {
 // ── puzzleIndex ───────────────────────────────────────────────────────────────
 describe('puzzleIndex', () => {
   it('returns 0 for start date', () => {
-    expect(puzzleIndex('2026-01-01')).toBe(0);
+    expect(puzzleIndex('2026-05-17')).toBe(0);
   });
   it('returns 1 for day after start', () => {
-    expect(puzzleIndex('2026-01-02')).toBe(1);
+    expect(puzzleIndex('2026-05-18')).toBe(1);
   });
-  it('returns 364 for last day of 2026', () => {
-    expect(puzzleIndex('2026-12-31')).toBe(364);
+  it('returns 228 for last day of 2026', () => {
+    expect(puzzleIndex('2026-12-31')).toBe(228);
   });
   it('clamps to 0 for dates before start', () => {
-    expect(puzzleIndex('2025-12-31')).toBe(0);
+    expect(puzzleIndex('2026-05-16')).toBe(0);
   });
 });
 
