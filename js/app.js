@@ -373,7 +373,9 @@ function bindGridEvents() {
     if (state.status !== 'playing') return;
     const idx = getCellFromPoint(e.clientX, e.clientY);
     if (idx === null) return;
-    if (!state.path.length || !isAdjacent(state.path[state.path.length - 1], idx)) {
+    const last = state.path[state.path.length - 1];
+    if (idx === last) return; // tap on current last cell — no-op, allows resuming drag
+    if (!state.path.length || !isAdjacent(last, idx)) {
       startPath(idx);
     } else {
       extendPath(idx);
