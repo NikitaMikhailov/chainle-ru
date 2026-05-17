@@ -190,9 +190,8 @@ function renderGrid() {
       const isFirst = pos === 0;
       const isLast  = pos === displayPath.length - 1;
       cell.classList.add('in-path');
-      if (isFirst && isLast) cell.classList.add('path-start');
-      else if (isFirst)      cell.classList.add('path-start');
-      else if (isLast)       cell.classList.add('path-end');
+      if (isFirst)      cell.classList.add('path-start');
+      else if (isLast)  cell.classList.add('path-end');
 
       if (state.status === 'solved' && state.stars === 3) cell.classList.add('three-star');
       else if (state.status === 'solved')                  cell.classList.add('solved');
