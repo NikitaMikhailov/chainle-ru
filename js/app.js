@@ -414,17 +414,11 @@ function retryPuzzle() {
 // ── Sharing ───────────────────────────────────────────────────────────────────
 function shareResult() {
   if (!state.submittedPath) return;
-  const pathSet = new Set(state.submittedPath);
-  const grid5 = Array.from({ length: 5 }, (_, r) =>
-    Array.from({ length: 5 }, (_, c) => pathSet.has(r * 5 + c) ? '🟩' : '⬜').join('')
-  ).join('\n');
   const stars = '⭐'.repeat(state.stars);
   const lines = [
     `Chainle #${state.puzzleIndex + 1} 🔗`,
     `Цель: ${state.target} | ${stars}`,
     `Путь: ${state.submittedPath.length} клеток`,
-    '',
-    grid5,
     '',
     'chainle.ru',
   ];
@@ -458,7 +452,6 @@ function copyFallback(text) {
 function renderStats() {
   const s = loadStats();
   document.getElementById('stat-played').textContent    = s.played;
-  document.getElementById('stat-solve-pct').textContent = s.played ? Math.round(s.solved / s.played * 100) : 0;
   document.getElementById('stat-streak').textContent    = s.streak;
   document.getElementById('stat-max-streak').textContent = s.maxStreak;
 
