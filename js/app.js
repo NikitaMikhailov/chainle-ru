@@ -65,7 +65,7 @@ function loadState() {
       const saved = JSON.parse(raw);
       if (saved.puzzleDate === todayPuzzle().date) {
         const pz = todayPuzzle();
-        state = { ...saved, grid: pz.grid };
+        state = { ...saved, grid: pz.grid, puzzleIndex: todayIndex() };
         return;
       }
     } catch { /* fall through */ }
