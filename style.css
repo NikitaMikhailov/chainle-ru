@@ -216,6 +216,14 @@ main {
 .cell.sum-ok {
   animation: pulse-green 0.35s ease;
 }
+.cell.sum-exceeded {
+  background: rgba(229, 62, 62, 0.15) !important;
+  border-color: var(--red) !important;
+}
+.cell.sum-exceeded.path-start {
+  background: rgba(229, 62, 62, 0.50) !important;
+  color: #fff !important;
+}
 .cell.sum-over {
   animation: flash-red 0.3s ease;
   border-color: var(--red) !important;
@@ -375,13 +383,15 @@ main {
 .result-meta   { font-size: 0.8rem; opacity: 0.6; margin-bottom: 12px; }
 .result-actions {
   display: flex;
+  flex-direction: column;
   gap: 8px;
-  justify-content: center;
+  align-items: stretch;
 }
 .result-actions .btn-primary,
 .result-actions .btn-secondary {
-  flex: none;
-  padding: 10px 20px;
+  width: 100%;
+  padding: 11px 16px;
+  box-sizing: border-box;
 }
 .result-retry-blocked {
   margin-top: 10px;
