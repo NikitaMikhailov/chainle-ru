@@ -371,6 +371,9 @@ function renderActionArea() {
 let pointerDown  = false;
 let didDrag      = false;
 let dragStartIdx = null;
+let mouseDownX   = 0;
+let mouseDownY   = 0;
+const DRAG_THRESHOLD_SQ = 36; // 6px radius — absorbs click jitter without delaying real drags
 
 function getCellFromPoint(clientX, clientY) {
   const container = document.getElementById('grid-container');
@@ -426,10 +429,18 @@ function bindGridEvents() {
     didDrag = false;
     dragStartIdx = idx;
     pointerDown = true;
+    mouseDownX = e.clientX;
+    mouseDownY = e.clientY;
   });
 
   container.addEventListener('mousemove', e => {
     if (!pointerDown || state.status !== 'playing') return;
+    // Ignore tiny movements — only commit to drag mode after crossing threshold.
+    // This prevents click jitter from triggering startPath and resetting the path.
+    const dx = e.clientX - mouseDownX;
+    const dy = e.clientY - mouseDownY;
+    if (!didDrag && dx * dx + dy * dy < DRAG_THRESHOLD_SQ) return;
+
     const idx = getCellFromPoint(e.clientX, e.clientY);
     if (idx === null) return;
     if (!didDrag) {
