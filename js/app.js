@@ -524,7 +524,7 @@ function shareResult() {
     `Chainle #${state.puzzleIndex + 1} — ${titles[state.stars]}! ${stars}`,
     `Цель: ${state.target} · Путь: ${pathLen} кл.${optimal}`,
     '',
-    'chainle.ru',
+    'Попробуй провести цепочку: https://chainle.ru',
   ];
   const text = lines.join('\n');
   if (navigator.clipboard?.writeText) {
