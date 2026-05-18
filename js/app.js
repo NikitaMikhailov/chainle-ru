@@ -1,5 +1,6 @@
 import { isAdjacent, validatePath, calcStars,
-         puzzleIndex, todayDateStr, getPuzzle } from './engine.js?v=__BUILD_HASH__';
+         puzzleIndex, todayDateStr, getPuzzle,
+         findOptimalPath } from './engine.js?v=__BUILD_HASH__';
 
 // ── Safe localStorage ────────────────────────────────────────────────────────
 const store = {
@@ -50,11 +51,13 @@ function defaultState() {
     status:      'playing',   // playing | solved
     stars:       0,
     submittedPath: null,
+    optimalPath:   null,
+    viewingOptimal: false,
   };
 }
 
 function saveState() {
-  const { grid, ...rest } = state;
+  const { grid, optimalPath, viewingOptimal, ...rest } = state;
   store.set(STORE_GAME, JSON.stringify(rest));
 }
 
@@ -65,7 +68,8 @@ function loadState() {
       const saved = JSON.parse(raw);
       if (saved.puzzleDate === todayPuzzle().date) {
         const pz = todayPuzzle();
-        state = { ...saved, grid: pz.grid, puzzleIndex: todayIndex() };
+        state = { ...saved, grid: pz.grid, puzzleIndex: todayIndex(),
+                  optimalPath: null, viewingOptimal: false };
         return;
       }
     } catch { /* fall through */ }
@@ -175,8 +179,11 @@ function buildGrid() {
 
 // ── Render ───────────────────────────────────────────────────────────────────
 function renderGrid() {
-  const displayPath = state.status === 'solved' ? (state.submittedPath || []) : state.path;
-  const pathSet = new Set(displayPath);
+  const displayPath = state.viewingOptimal
+    ? (state.optimalPath || [])
+    : state.status === 'solved'
+      ? (state.submittedPath || [])
+      : state.path;
 
   for (let i = 0; i < 25; i++) {
     const cell = document.getElementById(`cell-${i}`);
@@ -193,8 +200,13 @@ function renderGrid() {
       if (isFirst)      cell.classList.add('path-start');
       else if (isLast)  cell.classList.add('path-end');
 
-      if (state.status === 'solved' && state.stars === 3) cell.classList.add('three-star');
-      else if (state.status === 'solved')                  cell.classList.add('solved');
+      if (state.viewingOptimal) {
+        cell.classList.add('optimal-path');
+      } else if (state.status === 'solved' && state.stars === 3) {
+        cell.classList.add('three-star');
+      } else if (state.status === 'solved') {
+        cell.classList.add('solved');
+      }
 
       cell.innerHTML = `<span class="cell-val">${num}</span><span class="cell-seq">${pos + 1}</span>`;
     }
@@ -208,10 +220,10 @@ function renderGrid() {
     else if (state.sum > state.target)   lastCell.classList.add('sum-over');
   }
 
-  renderPathSVG(displayPath);
+  renderPathSVG(displayPath, state.viewingOptimal);
 }
 
-function renderPathSVG(path) {
+function renderPathSVG(path, isOptimal = false) {
   const line = document.getElementById('path-line');
   if (!line) return;
   if (path.length < 2) { line.setAttribute('points', ''); return; }
@@ -230,6 +242,11 @@ function renderPathSVG(path) {
 
   const sw = cells[0].getBoundingClientRect().width * 0.2;
   line.setAttribute('stroke-width', sw);
+
+  if (isOptimal) {
+    line.setAttribute('stroke', 'rgba(99,148,222,0.85)');
+    return;
+  }
 
   const solved = state.status === 'solved';
   line.setAttribute('stroke', solved && state.stars === 3
@@ -288,15 +305,27 @@ function renderActionArea() {
     const stars  = '⭐'.repeat(state.stars) + '☆'.repeat(3 - state.stars);
     const titles = ['', 'Решено!', 'Отлично!', 'Идеально!'];
     const subs   = ['', 'Путь не оптимален, но задача решена.', 'Почти идеально — на клетку длиннее.', 'Кратчайший маршрут — мастерский ход!'];
+
+    const optimalLabel = state.viewingOptimal ? 'Скрыть оптимум' : 'Посмотреть оптимум';
+    const optimalBtnId = 'banner-optimal-btn';
+    const showOptimalBtn = state.stars < 3
+      ? `<button class="btn-secondary" id="${optimalBtnId}">${optimalLabel}</button>`
+      : '';
+
     panel.innerHTML = `
       <div class="result-stars">${stars}</div>
-      <div class="result-title">${titles[state.stars]}</div>
-      <div class="result-sub">${subs[state.stars]}</div>
+      <div class="result-title">${state.viewingOptimal ? 'Оптимальный путь' : titles[state.stars]}</div>
+      <div class="result-sub">${state.viewingOptimal ? `Кратчайший маршрут: ${state.optimal} кл.` : subs[state.stars]}</div>
       <div class="result-meta">Ваш путь: ${state.submittedPath.length} кл. · Оптимум: ${state.optimal} кл.</div>
       <div class="result-actions">
+        ${showOptimalBtn}
         <button class="btn-secondary" id="banner-retry-btn">Попробовать снова</button>
         <button class="btn-primary" id="banner-share-btn">Поделиться</button>
       </div>`;
+
+    if (state.stars < 3) {
+      document.getElementById(optimalBtnId).onclick = toggleOptimalPath;
+    }
     document.getElementById('banner-retry-btn').onclick = retryPuzzle;
     document.getElementById('banner-share-btn').onclick = shareResult;
     panel.classList.remove('hidden');
@@ -407,8 +436,33 @@ function retryPuzzle() {
   state.sum    = 0;
   state.stars  = 0;
   state.submittedPath = null;
+  state.optimalPath   = null;
+  state.viewingOptimal = false;
   saveState();
   render();
+}
+
+// ── Show / hide optimal path ──────────────────────────────────────────────────
+function toggleOptimalPath() {
+  if (state.viewingOptimal) {
+    state.viewingOptimal = false;
+    renderGrid();
+    renderActionArea();
+    return;
+  }
+
+  if (!state.optimalPath) {
+    state.optimalPath = findOptimalPath(state.grid, state.target, state.optimal);
+  }
+
+  if (!state.optimalPath) {
+    toast('Не удалось найти оптимальный путь');
+    return;
+  }
+
+  state.viewingOptimal = true;
+  renderGrid();
+  renderActionArea();
 }
 
 // ── Sharing ───────────────────────────────────────────────────────────────────
