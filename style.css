@@ -383,6 +383,12 @@ main {
   flex: none;
   padding: 10px 20px;
 }
+.result-retry-blocked {
+  margin-top: 10px;
+  font-size: 0.75rem;
+  opacity: 0.5;
+  font-style: italic;
+}
 
 /* ── Modals ─────────────────────────────────────────────────────────────── */
 .modal-overlay {
