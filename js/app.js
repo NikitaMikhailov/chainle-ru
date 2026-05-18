@@ -216,12 +216,16 @@ function renderGrid() {
     }
   }
 
-  // Sum-state colouring on last cell
+  // Sum-state colouring
   if (state.status === 'playing' && state.path.length > 0) {
-    const lastIdx = state.path[state.path.length - 1];
-    const lastCell = document.getElementById(`cell-${lastIdx}`);
-    if (state.sum === state.target)      lastCell.classList.add('sum-ok');
-    else if (state.sum > state.target)   lastCell.classList.add('sum-over');
+    if (state.sum === state.target) {
+      const lastIdx = state.path[state.path.length - 1];
+      document.getElementById(`cell-${lastIdx}`).classList.add('sum-ok');
+    } else if (state.sum > state.target) {
+      for (const idx of state.path) {
+        document.getElementById(`cell-${idx}`).classList.add('sum-exceeded');
+      }
+    }
   }
 
   renderPathSVG(displayPath, state.viewingOptimal);

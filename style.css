@@ -216,6 +216,14 @@ main {
 .cell.sum-ok {
   animation: pulse-green 0.35s ease;
 }
+.cell.sum-exceeded {
+  background: rgba(229, 62, 62, 0.15) !important;
+  border-color: var(--red) !important;
+}
+.cell.sum-exceeded.path-start {
+  background: rgba(229, 62, 62, 0.50) !important;
+  color: #fff !important;
+}
 .cell.sum-over {
   animation: flash-red 0.3s ease;
   border-color: var(--red) !important;
