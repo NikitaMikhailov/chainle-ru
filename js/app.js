@@ -52,7 +52,8 @@ function defaultState() {
     stars:       0,
     submittedPath: null,
     optimalPath:   null,
-    viewingOptimal: false,
+    viewingOptimal:   false,
+    hasViewedOptimal: false,
   };
 }
 
@@ -60,6 +61,7 @@ function saveState() {
   const { grid, optimalPath, viewingOptimal, ...rest } = state;
   store.set(STORE_GAME, JSON.stringify(rest));
 }
+// hasViewedOptimal is part of ...rest → persisted in localStorage
 
 function loadState() {
   const raw = store.get(STORE_GAME);
@@ -69,7 +71,8 @@ function loadState() {
       if (saved.puzzleDate === todayPuzzle().date) {
         const pz = todayPuzzle();
         state = { ...saved, grid: pz.grid, puzzleIndex: todayIndex(),
-                  optimalPath: null, viewingOptimal: false };
+                  optimalPath: null, viewingOptimal: false,
+                  hasViewedOptimal: saved.hasViewedOptimal ?? false };
         return;
       }
     } catch { /* fall through */ }
@@ -147,6 +150,7 @@ function resetPath() {
   state.sum  = 0;
   renderGrid();
   renderInfo();
+  saveState();
 }
 
 function confirmPath() {
@@ -306,10 +310,18 @@ function renderActionArea() {
     const titles = ['', 'Решено!', 'Отлично!', 'Идеально!'];
     const subs   = ['', 'Путь не оптимален, но задача решена.', 'Почти идеально — на клетку длиннее.', 'Кратчайший маршрут — мастерский ход!'];
 
-    const optimalLabel = state.viewingOptimal ? 'Скрыть оптимум' : 'Посмотреть оптимум';
-    const optimalBtnId = 'banner-optimal-btn';
-    const showOptimalBtn = state.stars < 3
-      ? `<button class="btn-secondary" id="${optimalBtnId}">${optimalLabel}</button>`
+    const canSeeOptimal = state.stars < 3;
+    const optimalLabel  = state.viewingOptimal ? 'Скрыть оптимум' : 'Посмотреть оптимум';
+    const retryBlocked  = state.hasViewedOptimal;
+
+    const showOptimalBtn = canSeeOptimal
+      ? `<button class="btn-secondary" id="banner-optimal-btn">${optimalLabel}</button>`
+      : '';
+    const retryBtn = !retryBlocked
+      ? `<button class="btn-secondary" id="banner-retry-btn">Попробовать снова</button>`
+      : '';
+    const retryBlockedNote = retryBlocked
+      ? `<div class="result-retry-blocked">Оптимальный путь просмотрен — повтор недоступен</div>`
       : '';
 
     panel.innerHTML = `
@@ -319,14 +331,17 @@ function renderActionArea() {
       <div class="result-meta">Ваш путь: ${state.submittedPath.length} кл. · Оптимум: ${state.optimal} кл.</div>
       <div class="result-actions">
         ${showOptimalBtn}
-        <button class="btn-secondary" id="banner-retry-btn">Попробовать снова</button>
+        ${retryBtn}
         <button class="btn-primary" id="banner-share-btn">Поделиться</button>
-      </div>`;
+      </div>
+      ${retryBlockedNote}`;
 
-    if (state.stars < 3) {
-      document.getElementById(optimalBtnId).onclick = toggleOptimalPath;
+    if (canSeeOptimal) {
+      document.getElementById('banner-optimal-btn').onclick = toggleOptimalPath;
     }
-    document.getElementById('banner-retry-btn').onclick = retryPuzzle;
+    if (!retryBlocked) {
+      document.getElementById('banner-retry-btn').onclick = retryPuzzle;
+    }
     document.getElementById('banner-share-btn').onclick = shareResult;
     panel.classList.remove('hidden');
 
@@ -386,6 +401,7 @@ function bindGridEvents() {
   container.addEventListener('touchend', e => {
     e.preventDefault();
     pointerDown = false;
+    if (state.status === 'playing') saveState();
   }, { passive: false });
 
   // Mouse: mousedown only sets up drag — path is built via mousemove (drag) or click (tap)
@@ -411,7 +427,10 @@ function bindGridEvents() {
     extendPath(idx);
   });
 
-  document.addEventListener('mouseup', () => { pointerDown = false; });
+  document.addEventListener('mouseup', () => {
+    if (pointerDown && state.status === 'playing') saveState();
+    pointerDown = false;
+  });
 
   // Click (tap without drag): extend path or start new one
   container.addEventListener('click', e => {
@@ -426,6 +445,7 @@ function bindGridEvents() {
     } else {
       extendPath(idx);
     }
+    saveState();
   });
 }
 
@@ -435,9 +455,10 @@ function retryPuzzle() {
   state.path   = [];
   state.sum    = 0;
   state.stars  = 0;
-  state.submittedPath = null;
-  state.optimalPath   = null;
+  state.submittedPath  = null;
+  state.optimalPath    = null;
   state.viewingOptimal = false;
+  // hasViewedOptimal intentionally kept — retry blocked if optimal was seen
   saveState();
   render();
 }
@@ -460,7 +481,9 @@ function toggleOptimalPath() {
     return;
   }
 
-  state.viewingOptimal = true;
+  state.viewingOptimal   = true;
+  state.hasViewedOptimal = true;
+  saveState();
   renderGrid();
   renderActionArea();
 }
