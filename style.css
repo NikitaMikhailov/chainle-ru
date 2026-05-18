@@ -375,13 +375,15 @@ main {
 .result-meta   { font-size: 0.8rem; opacity: 0.6; margin-bottom: 12px; }
 .result-actions {
   display: flex;
+  flex-direction: column;
   gap: 8px;
-  justify-content: center;
+  align-items: stretch;
 }
 .result-actions .btn-primary,
 .result-actions .btn-secondary {
-  flex: none;
-  padding: 10px 20px;
+  width: 100%;
+  padding: 11px 16px;
+  box-sizing: border-box;
 }
 .result-retry-blocked {
   margin-top: 10px;
