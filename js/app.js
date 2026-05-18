@@ -516,13 +516,15 @@ function toggleOptimalPath() {
 // ── Sharing ───────────────────────────────────────────────────────────────────
 function shareResult() {
   if (!state.submittedPath) return;
-  const stars = '⭐'.repeat(state.stars);
+  const stars  = '⭐'.repeat(state.stars) + '☆'.repeat(3 - state.stars);
+  const titles = ['', 'Решено', 'Отлично', 'Идеально'];
+  const pathLen = state.submittedPath.length;
+  const optimal = pathLen === state.optimal ? ' — оптимально!' : ` (оптимум: ${state.optimal} кл.)`;
   const lines = [
-    `Chainle #${state.puzzleIndex + 1} 🔗`,
-    `Цель: ${state.target} | ${stars}`,
-    `Путь: ${state.submittedPath.length} клеток`,
+    `Chainle #${state.puzzleIndex + 1} — ${titles[state.stars]}! ${stars}`,
+    `Цель: ${state.target} · Путь: ${pathLen} кл.${optimal}`,
     '',
-    'chainle.ru',
+    'Попробуй провести цепочку: https://chainle.ru',
   ];
   const text = lines.join('\n');
   if (navigator.clipboard?.writeText) {
