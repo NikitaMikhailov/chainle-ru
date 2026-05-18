@@ -59,11 +59,12 @@ server {
     access_log /var/log/nginx/${DOMAIN}.access.log;
     error_log  /var/log/nginx/${DOMAIN}.error.log;
 
-    # Security headers (HSTS added by certbot after SSL)
+    # Security headers — HSTS активируется certbot-ом после получения SSL
     add_header X-Content-Type-Options  "nosniff"                         always;
     add_header X-Frame-Options         "DENY"                            always;
     add_header Referrer-Policy         "strict-origin-when-cross-origin" always;
     add_header Permissions-Policy      "camera=(), microphone=(), geolocation=()" always;
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
 
     location / {
         proxy_pass http://127.0.0.1:8082;
