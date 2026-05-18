@@ -59,6 +59,12 @@ server {
     access_log /var/log/nginx/${DOMAIN}.access.log;
     error_log  /var/log/nginx/${DOMAIN}.error.log;
 
+    # Security headers (HSTS added by certbot after SSL)
+    add_header X-Content-Type-Options  "nosniff"                         always;
+    add_header X-Frame-Options         "DENY"                            always;
+    add_header Referrer-Policy         "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy      "camera=(), microphone=(), geolocation=()" always;
+
     location / {
         proxy_pass http://127.0.0.1:8082;
         proxy_set_header Host \$host;
