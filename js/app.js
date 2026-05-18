@@ -514,30 +514,16 @@ function toggleOptimalPath() {
 }
 
 // ── Sharing ───────────────────────────────────────────────────────────────────
-function buildShareGrid() {
-  const pathSet = new Set(state.submittedPath);
-  const rows = [];
-  for (let row = 0; row < 5; row++) {
-    let line = '';
-    for (let col = 0; col < 5; col++) {
-      line += pathSet.has(row * 5 + col) ? '🟩' : '⬜';
-    }
-    rows.push(line);
-  }
-  return rows.join('\n');
-}
-
 function shareResult() {
   if (!state.submittedPath) return;
-  const stars   = '⭐'.repeat(state.stars) + '☆'.repeat(3 - state.stars);
-  const titles  = ['', 'Решено', 'Отлично', 'Идеально'];
-  const optimal = state.submittedPath.length === state.optimal ? ' (оптимально!)' : ` · оптимум: ${state.optimal} кл.`;
+  const stars  = '⭐'.repeat(state.stars) + '☆'.repeat(3 - state.stars);
+  const titles = ['', 'Решено', 'Отлично', 'Идеально'];
+  const pathLen = state.submittedPath.length;
+  const optimal = pathLen === state.optimal ? ' — оптимально!' : ` (оптимум: ${state.optimal} кл.)`;
   const lines = [
     `Chainle #${state.puzzleIndex + 1} — ${titles[state.stars]}! ${stars}`,
+    `Цель: ${state.target} · Путь: ${pathLen} кл.${optimal}`,
     '',
-    buildShareGrid(),
-    '',
-    `Цель: ${state.target} · Путь: ${state.submittedPath.length} кл.${optimal}`,
     'chainle.ru',
   ];
   const text = lines.join('\n');
