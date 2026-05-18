@@ -4,8 +4,8 @@ import { isAdjacent, validatePath, calcStars,
 
 // ── Safe localStorage ────────────────────────────────────────────────────────
 const store = {
-  get(k)    { try { return localStorage.getItem(k); }    catch { return null; } },
-  set(k, v) { try { localStorage.setItem(k, v); }        catch { } },
+  get(k)    { try { return localStorage.getItem(k); }         catch { return null;  } },
+  set(k, v) { try { localStorage.setItem(k, v); return true; } catch { return false; } },
 };
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -20,8 +20,14 @@ let state   = null;
 // ── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
   loadTheme();
-  const data = await fetch(PUZZLES_URL).then(r => r.json());
-  puzzles = data.puzzles;
+  try {
+    const data = await fetch(PUZZLES_URL).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+    puzzles = data.puzzles;
+  } catch {
+    document.getElementById('main-content').innerHTML =
+      '<div class="load-error">Не удалось загрузить игру.<br>Проверьте соединение и обновите страницу.</div>';
+    return;
+  }
   loadState();
   buildGrid();
   bindEvents();
@@ -57,11 +63,15 @@ function defaultState() {
   };
 }
 
+let _storageWarned = false;
 function saveState() {
   const { grid, optimalPath, viewingOptimal, ...rest } = state;
-  store.set(STORE_GAME, JSON.stringify(rest));
+  const ok = store.set(STORE_GAME, JSON.stringify(rest));
+  if (!ok && !_storageWarned) {
+    _storageWarned = true;
+    toast('Прогресс не сохраняется: переполнен кэш браузера', 5000);
+  }
 }
-// hasViewedOptimal is part of ...rest → persisted in localStorage
 
 function loadState() {
   const raw = store.get(STORE_GAME);
@@ -556,7 +566,9 @@ function renderStats() {
   }
 }
 
+let _countdownTimer = null;
 function startCountdown() {
+  clearInterval(_countdownTimer);
   const update = () => {
     const now  = new Date();
     const next = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 1));
@@ -568,7 +580,7 @@ function startCountdown() {
     if (el) el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   };
   update();
-  setInterval(update, 1000);
+  _countdownTimer = setInterval(update, 1000);
 }
 
 // ── Modals ────────────────────────────────────────────────────────────────────
