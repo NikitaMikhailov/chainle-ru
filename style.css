@@ -238,6 +238,22 @@ main {
   border-color: var(--green);
   color: #fff;
 }
+.cell.optimal-path {
+  background: rgba(99,148,222,0.22);
+  border-color: #6394de;
+  animation: pop-in 0.2s ease;
+}
+.cell.optimal-path.path-start {
+  background: #6394de;
+  border-color: #6394de;
+  color: #fff;
+}
+
+@keyframes pop-in {
+  0%   { transform: scale(0.88); }
+  60%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
 
 @keyframes pulse-green {
   0%   { transform: scale(1); border-color: var(--green); }
@@ -366,6 +382,12 @@ main {
 .result-actions .btn-secondary {
   flex: none;
   padding: 10px 20px;
+}
+.result-retry-blocked {
+  margin-top: 10px;
+  font-size: 0.75rem;
+  opacity: 0.5;
+  font-style: italic;
 }
 
 /* ── Modals ─────────────────────────────────────────────────────────────── */

@@ -60,6 +60,24 @@ export function solve(grid, target, maxLength = 12, maxTotal = 5001) {
   return { results, bailed: false };
 }
 
+// ── Find one optimal path (returns array of cell indices or null) ────────────
+export function findOptimalPath(grid, target, optimalLen) {
+  for (let start = 0; start < 25; start++) {
+    const stack = [[start, 1 << start, grid[start], [start]]];
+    while (stack.length) {
+      const [pos, visited, sum, path] = stack.pop();
+      if (sum === target) return path;
+      if (sum > target || path.length >= optimalLen) continue;
+      for (const nb of NEIGHBORS[pos]) {
+        if (!(visited & (1 << nb)) && sum + grid[nb] <= target) {
+          stack.push([nb, visited | (1 << nb), sum + grid[nb], [...path, nb]]);
+        }
+      }
+    }
+  }
+  return null;
+}
+
 // ── Path validation ──────────────────────────────────────────────────────────
 export function validatePath(path, grid, target) {
   if (path.length < 2) return { valid: false, sum: 0 };
