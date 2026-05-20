@@ -47,8 +47,9 @@ function todayIndex() {
 function defaultState() {
   const pz = todayPuzzle();
   return {
-    puzzleIndex: todayIndex(),
-    puzzleDate:  pz.date,
+    puzzleIndex:  todayIndex(),
+    calendarDate: todayDateStr(),
+    puzzleDate:   pz.date,
     grid:        pz.grid,
     target:      pz.target,
     optimal:     pz.optimal,
@@ -78,7 +79,8 @@ function loadState() {
   if (raw) {
     try {
       const saved = JSON.parse(raw);
-      if (saved.puzzleDate === todayPuzzle().date) {
+      const savedKey = saved.calendarDate ?? saved.puzzleDate;
+      if (savedKey === todayDateStr()) {
         const pz = todayPuzzle();
         state = { ...saved, grid: pz.grid, puzzleIndex: todayIndex(),
                   optimalPath: null, viewingOptimal: false,
