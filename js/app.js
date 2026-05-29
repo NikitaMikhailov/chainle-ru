@@ -529,6 +529,14 @@ function shareResult() {
     'Попробуй провести цепочку: https://chainle.ru',
   ];
   const text = lines.join('\n');
+  if (navigator.share) {
+    navigator.share({ text }).catch(() => copyToClipboard(text));
+  } else {
+    copyToClipboard(text);
+  }
+}
+
+function copyToClipboard(text) {
   if (navigator.clipboard?.writeText) {
     navigator.clipboard.writeText(text)
       .then(() => toast('Скопировано!'))
@@ -541,17 +549,13 @@ function shareResult() {
 function copyFallback(text) {
   const ta = document.createElement('textarea');
   ta.value = text;
-  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;width:2em;height:2em';
   document.body.appendChild(ta);
   ta.focus();
   ta.select();
-  try {
-    document.execCommand('copy');
-    toast('Скопировано!');
-  } catch {
-    toast('Не удалось скопировать');
-  }
+  const ok = document.execCommand('copy');
   ta.remove();
+  toast(ok ? 'Скопировано!' : 'Не удалось скопировать');
 }
 
 // ── Stats modal ───────────────────────────────────────────────────────────────
