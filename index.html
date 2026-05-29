@@ -45,7 +45,48 @@
     "genre": "Puzzle",
     "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 1 },
     "gamePlatform": ["Web Browser", "Mobile"],
-    "image": "https://chainle.ru/og-image.png"
+    "image": "https://chainle.ru/og-image.png",
+    "screenshot": "https://chainle.ru/og-image.png"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Как играть в Chainle?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Проведите непрерывную цепочку по сетке 5×5, соединяя соседние клетки (вверх, вниз, влево, вправо). Сумма чисел в цепочке должна точно равняться дневной цели. Чем короче путь — тем выше оценка."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Chainle бесплатная игра?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Да, Chainle полностью бесплатна. Каждый день появляется новая головоломка — без регистрации и рекламы."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Как работает система звёзд в Chainle?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "За решение оптимальным путём — 3 звезды. За путь на 1 клетку длиннее — 2 звезды. За более длинный путь — 1 звезда. Оптимальная длина известна заранее и рассчитана алгоритмически."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Можно ли отменить ход в Chainle?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Да. Чтобы откатить последний шаг, проведите пальцем (или курсором) обратно на предыдущую клетку — она будет убрана из цепочки."
+        }
+      }
+    ]
   }
   </script>
 
@@ -70,6 +111,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%236aaa64'/><text x='16' y='23' text-anchor='middle' font-family='system-ui,sans-serif' font-size='16' font-weight='700' fill='white'>CH</text></svg>">
 </head>
 <body>
+  <p class="seo-description">Chainle — бесплатная ежедневная математическая головоломка. Проведите непрерывную цепочку по сетке 5×5, чтобы сумма чисел точно совпала с целью. Новая задача каждый день — без регистрации, без рекламы.</p>
   <header>
     <div class="header-inner">
       <button class="icon-btn" id="btn-how-to-play" title="Как играть">
@@ -133,7 +175,7 @@
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modal-header">
         <h2>Как играть</h2>
-        <button class="modal-close" data-close="how-to-play">✕</button>
+        <button class="modal-close" data-close="how-to-play" aria-label="Закрыть"><span aria-hidden="true">✕</span></button>
       </div>
       <div class="modal-body">
         <p>Chainle — ежедневная математическая головоломка. Проведи непрерывную цепочку по сетке 5×5 так, чтобы <strong>сумма чисел точно равнялась цели</strong>.</p>
@@ -172,7 +214,7 @@
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modal-header">
         <h2>Статистика</h2>
-        <button class="modal-close" data-close="stats">✕</button>
+        <button class="modal-close" data-close="stats" aria-label="Закрыть"><span aria-hidden="true">✕</span></button>
       </div>
       <div class="modal-body">
         <div id="stats-grid">
@@ -202,7 +244,7 @@
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modal-header">
         <h2>Настройки</h2>
-        <button class="modal-close" data-close="settings">✕</button>
+        <button class="modal-close" data-close="settings" aria-label="Закрыть"><span aria-hidden="true">✕</span></button>
       </div>
       <div class="modal-body">
         <div class="setting-row">
@@ -236,7 +278,7 @@
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modal-header">
         <h2>Конфиденциальность</h2>
-        <button class="modal-close" data-close="privacy">✕</button>
+        <button class="modal-close" data-close="privacy" aria-label="Закрыть"><span aria-hidden="true">✕</span></button>
       </div>
       <div class="modal-body">
         <p>Игровое состояние и статистика хранятся исключительно в <strong>localStorage</strong> вашего браузера — на устройстве, без отправки на сервер.</p>
