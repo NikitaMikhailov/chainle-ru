@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="102" fill="#6aaa64"></rect>
+  <polyline points="138,154 256,154 256,266 374,266 374,379" fill="none" stroke="#ffffff" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"></polyline>
+  <circle cx="256" cy="154" r="30" fill="#ffffff"></circle>
+  <circle cx="256" cy="266" r="30" fill="#ffffff"></circle>
+  <circle cx="374" cy="266" r="30" fill="#ffffff"></circle>
+  <circle cx="374" cy="379" r="30" fill="#ffffff"></circle>
+  <circle cx="138" cy="154" r="44" fill="#ffffff"></circle>
+  <circle cx="138" cy="154" r="17" fill="#6aaa64"></circle>
+</svg>
