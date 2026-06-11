@@ -498,6 +498,7 @@ main {
   margin: 4px auto;
 }
 .htp-cell {
+  position: relative;
   width: 36px; height: 36px;
   border: 2px solid var(--border);
   border-radius: 6px;
@@ -515,6 +516,33 @@ main {
   background: var(--green);
   border-color: var(--green);
   color: #fff;
+  z-index: 2;
+}
+.htp-seq {
+  position: absolute;
+  top: 1px;
+  right: 3px;
+  font-size: 0.5rem;
+  font-weight: 600;
+  opacity: 0.75;
+  line-height: 1;
+}
+.htp-path-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
+}
+.htp-path-svg polyline {
+  fill: none;
+  stroke: rgba(106,170,100,0.65);
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .htp-warning {
   background: rgba(201,180,88,0.15);
