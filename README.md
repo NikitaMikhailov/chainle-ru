@@ -1,8 +1,12 @@
 # Chainle
 
+[![Live](https://img.shields.io/badge/live-chainle.ru-2ea44f)](https://chainle.ru)
+[![Tests](https://github.com/NikitaMikhailov/chainle-ru/actions/workflows/deploy.yml/badge.svg)](https://github.com/NikitaMikhailov/chainle-ru/actions/workflows/deploy.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Russian daily math puzzle game. Draw a chain through a 5×5 grid so the sum of numbers equals the daily target.
 
-**Live:** [chainle.ru](https://chainle.ru)
+**Play now:** [chainle.ru](https://chainle.ru)
 
 ## Game mechanics
 
@@ -73,7 +77,7 @@ Replaces `__BUILD_HASH__` in `index.html` and `js/app.js` with the current git s
 
 Push to `main` triggers GitHub Actions → tests → SSH into production server → `sudo chainle-update` (git pull + docker compose up).
 
-**Server:** Ubuntu 20.04, nginx reverse proxy, Docker, Let's Encrypt SSL  
+**Server:** Ubuntu, nginx reverse proxy, Docker, Let's Encrypt SSL  
 **Webroot:** `/var/www/chainle.ru`
 
 ## Puzzles
@@ -81,3 +85,7 @@ Push to `main` triggers GitHub Actions → tests → SSH into production server 
 327 puzzles pre-generated for 2026-01-02 through 2026-12-31.  
 Each puzzle: `date`, `grid[25]` (values 1–9), `target`, `optimal` (shortest path length).  
 To regenerate: `python3 scripts/generate_puzzles.py`
+
+## Sister project
+
+[Не вордли](https://dontwordle.ru) ([source](https://github.com/NikitaMikhailov/dontwordle-ru)) — a Russian Wordle variant by the same author, same infra.
