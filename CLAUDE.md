@@ -65,10 +65,9 @@ npm run build
 
 ## Продакшн сервер
 
+Данные для SSH-доступа (IP, порт, логин) не хранятся в репозитории — см. приватные заметки/менеджер паролей.
+
 - **Домен:** https://chainle.ru
-- **IP:** [REDACTED-SERVER-IP]
-- **SSH порт:** [REDACTED-SERVER-PORT]
-- **Пользователь:** [REDACTED-SERVER-USER]
 - **ОС:** Ubuntu 20.04 LTS
 - **Webroot:** `/var/www/chainle.ru`
 - **nginx:** reverse proxy → Docker-контейнер на порту 8082
