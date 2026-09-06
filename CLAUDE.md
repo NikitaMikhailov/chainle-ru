@@ -65,10 +65,11 @@ npm run build
 
 ## Продакшн сервер
 
+Данные для SSH-доступа (IP, порт, логин) не хранятся в репозитории. Локально они лежат в
+`.claude/server-info.local.md` (в `.gitignore`, никогда не коммитится) — если файла нет, создать
+по образцу из приватных заметок/менеджера паролей.
+
 - **Домен:** https://chainle.ru
-- **IP:** [REDACTED-SERVER-IP]
-- **SSH порт:** [REDACTED-SERVER-PORT]
-- **Пользователь:** [REDACTED-SERVER-USER]
 - **ОС:** Ubuntu 20.04 LTS
 - **Webroot:** `/var/www/chainle.ru`
 - **nginx:** reverse proxy → Docker-контейнер на порту 8082
