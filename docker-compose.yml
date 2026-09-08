@@ -9,3 +9,5 @@ services:
       - "dashsync.name=Chainle"
       - "dashsync.group=Websites"
       - "dashsync.url=https://chainle.ru"
+      - "dashsync.icon=nginx"
+      - "dashsync.description=Static site served via nginx"
