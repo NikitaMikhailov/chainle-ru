@@ -11,3 +11,6 @@ services:
       - "dashsync.url=https://chainle.ru"
       - "dashsync.icon=nginx"
       - "dashsync.description=Static site served via nginx"
+      - "dashsync.homepage.server=my-docker"
+      - "dashsync.homepage.container=chainleru-web-1"
+      - "dashsync.homepage.showStats=true"
