@@ -4,3 +4,8 @@ services:
     restart: always
     ports:
       - "127.0.0.1:8082:80"
+    labels:
+      - "dashsync.enable=true"
+      - "dashsync.name=Chainle"
+      - "dashsync.group=Websites"
+      - "dashsync.url=https://chainle.ru"
